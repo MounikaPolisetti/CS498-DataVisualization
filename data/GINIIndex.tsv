@@ -1,0 +1,185 @@
+name	id	GINI_Index
+East Asia & Pacific	EAS	0
+Europe & Central Asia	ECS	0
+Fragile and conflict affected situations	FCS	0
+IDA countries classified as fragile situations	DFS	0
+IDA total	IDA	0
+Latin America & Caribbean	LCN	0
+Low & middle income	LMY	0
+Low income	LIC	0
+Lower middle income	LMC	0
+Middle East & North Africa	MEA	0
+Middle income	MIC	0
+South Asia	SAS	0
+Sub-Saharan Africa	SSF	0
+Upper middle income	UMC	0
+World	WLD	0
+Afghanistan	AFG	0
+Albania	ALB	29
+Algeria	DZA	27.6
+Angola	AGO	0
+Argentina	ARG	41.4
+Armenia	ARM	32.4
+Australia	AUS	34.7
+Austria	AUT	30.5
+Azerbaijan	AZE	0
+Bangladesh	BGD	32.1
+Belarus	BLR	26.7
+Belgium	BEL	27.7
+Belize	BLZ	0
+Benin	BEN	47.8
+Bhutan	BTN	38.8
+Bolivia	BOL	46.7
+Bosnia and Herzegovina	BIH	32.7
+Botswana	BWA	60.5
+Brazil	BRA	51.3
+Bulgaria	BGR	37.4
+Burkina Faso	BFA	35.3
+Burundi	BDI	38.6
+Cabo Verde	CPV	0
+Cambodia	KHM	0
+Cameroon	CMR	46.6
+Canada	CAN	34
+Central African Republic	CAF	0
+Chad	TCD	43.3
+Chile	CHL	47.7
+China	CHN	42.2
+Colombia	COL	51.1
+Comoros	COM	45.3
+Congo	Dem. Rep.	COD	42.1
+Congo	Rep.	COG	48.9
+Costa Rica	CRI	48.4
+Cote d'Ivoire	CIV	41.5
+Croatia	HRV	30.8
+Cyprus	CYP	34
+Czech Republic	CZE	25.9
+Denmark	DNK	28.2
+Djibouti	DJI	44.1
+Dominican Republic	DOM	44.7
+Ecuador	ECU	46
+Egypt	Arab Rep.	EGY	31.8
+El Salvador	SLV	40.6
+Equatorial Guinea	GNQ	0
+Eritrea	ERI	0
+Estonia	EST	32.7
+Ethiopia	ETH	39.1
+Fiji	FJI	36.4
+Finland	FIN	27.1
+France	FRA	32.7
+Gabon	GAB	0
+Gambia	The	GMB	35.9
+Georgia	GEO	36.4
+Germany	DEU	31.7
+Ghana	GHA	42.4
+Greece	GRC	36
+Guatemala	GTM	48.3
+Guinea	GIN	33.7
+Guinea-Bissau	GNB	50.7
+Guyana	GUY	0
+Haiti	HTI	41.1
+Honduras	HND	49.6
+Hungary	HUN	30.4
+Iceland	ISL	25.6
+India	IND	35.1
+Indonesia	IDN	39.5
+Iran	Islamic Rep.	IRN	38.8
+Iraq	IRQ	29.5
+Ireland	IRL	31.9
+Israel	ISR	41.4
+Italy	ITA	34.7
+Jamaica	JAM	0
+Japan	JPN	0
+Jordan	JOR	33.7
+Kazakhstan	KAZ	26.9
+Kenya	KEN	0
+Kiribati	KIR	0
+Korea	Rep.	KOR	31.6
+Kosovo	XKX	26.4
+Kyrgyz Republic	KGZ	29
+Lao PDR	LAO	36.4
+Latvia	LVA	34.2
+Lebanon	LBN	31.8
+Lesotho	LSO	54.2
+Liberia	LBR	33.2
+Lithuania	LTU	37.4
+Luxembourg	LUX	31.2
+Macedonia	FYR	MKD	35.6
+Madagascar	MDG	42.6
+Malawi	MWI	45.5
+Malaysia	MYS	46.3
+Maldives	MDV	38.4
+Mali	MLI	33
+Malta	MLT	29
+Mauritania	MRT	32.6
+Mauritius	MUS	35.8
+Mexico	MEX	45.8
+Micronesia	Fed. Sts.	FSM	40.1
+Moldova	MDA	27
+Mongolia	MNG	32
+Montenegro	MNE	31.9
+Morocco	MAR	0
+Mozambique	MOZ	54
+Myanmar	MMR	38.1
+Namibia	NAM	61
+Nepal	NPL	32.8
+Netherlands	NLD	29.3
+Nicaragua	NIC	46.2
+Niger	NER	34.3
+Nigeria	NGA	43
+Norway	NOR	27.5
+Pakistan	PAK	30.7
+Palau	PLW	0
+Panama	PAN	50.8
+Papua New Guinea	PNG	41.9
+Paraguay	PRY	47.6
+Peru	PER	43.5
+Philippines	PHL	40.1
+Poland	POL	31.8
+Portugal	PRT	35.5
+Romania	ROU	27.5
+Russian Federation	RUS	37.7
+Rwanda	RWA	50.4
+Samoa	WSM	0
+Sao Tome and Principe	STP	30.8
+Senegal	SEN	40.3
+Serbia	SRB	28.5
+Seychelles	SYC	46.8
+Sierra Leone	SLE	34
+Slovak Republic	SVK	26.5
+Slovenia	SVN	25.4
+Solomon Islands	SLB	37.1
+South Africa	ZAF	63
+South Sudan	SSD	46.3
+Spain	ESP	36.2
+Sri Lanka	LKA	39.2
+St. Lucia	LCA	0
+Sudan	SDN	35.4
+Suriname	SUR	0
+Swaziland	SWZ	51.5
+Sweden	SWE	29.2
+Switzerland	CHE	32.5
+Syrian Arab Republic	SYR	0
+Tajikistan	TJK	34
+Tanzania	TZA	37.8
+Thailand	THA	37.8
+Timor-Leste	TLS	28.7
+Togo	TGO	43.1
+Tonga	TON	37.5
+Trinidad and Tobago	TTO	0
+Tunisia	TUN	35.8
+Turkey	TUR	42.9
+Turkmenistan	TKM	0
+Tuvalu	TUV	39.1
+Uganda	UGA	41
+Ukraine	UKR	25.5
+United Kingdom	GBR	33.2
+United States	USA	41
+Uruguay	URY	40.2
+Uzbekistan	UZB	0
+Vanuatu	VUT	37.6
+Venezuela	RB	VEN	0
+Vietnam	VNM	34.8
+West Bank and Gaza	PSE	34.4
+Yemen	Rep.	YEM	36.7
+Zambia	ZMB	57.1
+Zimbabwe	ZWE	43.2

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang="en">
+<style>
+
+    body {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .x.axis line {
+        stroke: #000;
+    }
+
+    .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+    }
+
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Regional Distribution of Poverty</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!-- <script src="http://d3js.org/d3.v3.js"></script> -->
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+    var margin = {top: 20, right: 80, bottom: 70, left: 50},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var parseTime = d3.timeParse("%Y");
+
+    var x = d3.scaleLinear().range([0, width]);
+
+    var y = d3.scaleLinear().range([height, 0]);
+
+    var color = d3.schemeCategory10;
+
+    var xAxis = d3.axisBottom()
+        .scale(x);
+
+    var yAxis = d3.axisLeft()
+        .scale(y);
+
+    var line = d3.line()
+        .curve(d3.curveBasis)
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(d.regionPopulation); });
+
+    var my_svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // var region_names = ["East Asia & Pacific", "Europe & Central Asia", "Latin America & Caribbean",
+    //                     "Middle East & North Africa", "South Asia",  "Sub-Saharan Africa", "World"];
+    var filterData = {
+        "East Asia & Pacific": true,
+        "Europe & Central Asia": true,
+        "Latin America & Caribbean": true,
+        "Middle East & North Africa": true,
+        "South Asia": true,
+        "Sub-Saharan Africa": true,
+        "World": true
+    };
+
+    function retrieveRegions(filterData) {
+        // "Region","Year"
+        d3.csv("data/NumberOfPoor.csv").then(function(data) {
+            console.log((data[0]));
+            // color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+            data.forEach(function(d) {
+                d.date = d.Year; // parseTime(d.Year);
+            });
+
+            // Get region names.
+            var region_names = new Set(data.map(d => d["Region"]));
+            console.log(region_names);
+
+            // Assign colors to region names.
+            var color = d3.scaleOrdinal(d3.schemeCategory10);
+            var iter = 0;
+            var region_json_array = [];
+            region_names.forEach(function (region_name, value) {
+                var region_json = {};
+                region_json['region_name'] = region_name;
+                region_json['region_color'] = color(iter++);
+
+                var values_array = [];
+                data.forEach(function (d) {
+                    if (d["Region"] === region_name) {
+                        var value_json = {};
+                        value_json['date'] = d.Year; // parseTime(d.Year);
+                        value_json['regionPopulation'] = d["% of Region Populaton"];
+                        values_array.push(value_json);
+                    }
+                });
+                region_json['values'] = values_array;
+
+                region_json_array.push(region_json);
+                console.log("added " + region_json);
+            });
+            console.log(region_json_array);
+
+            x.domain(d3.extent(data, function(d) { return d.Year; }));
+
+            /*y.domain([
+                d3.min(region_json_array, function(c) { return d3.min(c.values, function(v) { return v.regionPopulation; }); }),
+                d3.max(region_json_array, function(c) { return d3.max(c.values, function(v) { return v.regionPopulation; }); })
+            ]);*/
+            y.domain([0,100]);
+
+            my_svg.selectAll("*").remove();
+            //LEGEND
+            var legend = my_svg.selectAll('g')
+                .data(region_json_array)
+                .enter()
+                .append('g')
+                .attr('class', 'legend');
+
+            legend.append('rect')
+                .attr('x', width - 20)
+                .attr('y', function(d, i){ return i *  20;})
+                .attr('width', 10)
+                .attr('height', 10)
+                .style('fill', function(d) {
+                    return color(d.region_name);
+                })
+                .on("mouseover", function () {
+                    d3.select(this).style("cursor", "pointer");
+                });
+
+
+            legend.append('text')
+                .attr('x', width - 8)
+                .attr('y', function(d, i){ return (i *  20) + 9;})
+                .text(function(d){ return d.region_name; });
+
+            legend
+                .on("click", function(d){
+                     // filter data
+                     filterData[d.region_name]=!filterData[d.region_name];
+                     reDraw();
+                });
+
+            my_svg.append("text")
+                .attr("transform",
+                    "translate(" + (width/2) + " ," +
+                    (height + margin.top + 20) + ")")
+                .style("text-anchor", "middle")
+                .text("Year");
+
+            my_svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .attr("dx", ".71em")
+                .call(xAxis);
+
+            my_svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x",0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("% of Region Populaton");
+
+            my_svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("% of Region Populaton");
+
+            var boo = region_json_array.filter(function(d){return filterData[d.region_name]==true;});
+            console.log("filter");
+            console.log(boo);
+
+            var city = my_svg.selectAll(".city")
+                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;})) //.filter(function(d){return filterData[d.name]==true;})
+                .enter().append("g");
+            //  .attr("class", "city");
+
+            console.log(city);
+            my_svg.selectAll(".city")
+                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;}))//.filter(function(d){return filterData[d.name]==true;})
+                .append("g")
+                .attr("class", "city");
+
+            my_svg.selectAll(".city")
+                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;}))
+                .exit()
+                .remove();
+
+            city.append("path")
+                .attr("class", "line")
+                .attr("d", function(d) { return line(d.values); })
+                .style("stroke", function(d) { return color(d.region_name); });
+
+            city.append("text")
+                .datum(function(d) { return {name: d.region_name, value: d.values[d.values.length - 1]}; })
+                .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.regionPopulation) + ")"; })
+                .attr("x", 3)
+                .attr("dy", ".35em")
+                .text(function(d) { return d.region_name; });
+            my_svg.selectAll(".city")
+                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;}))
+                .exit()
+                .remove();
+        })
+    };
+
+    //retrieveRegions(filterData);
+
+    console.log(filterData);
+    retrieveRegions(filterData);
+    function reDraw(){
+        retrieveRegions(filterData);
+    }
+
+</script>
+
+</html>

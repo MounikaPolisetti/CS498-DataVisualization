@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    .bars rect {
+        fill: steelblue;
+    }
+
+    .axis text {
+        font: 10px sans-serif;
+    }
+
+    .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+</style>
+<body>
+<script src="//d3js.org/d3.v5.min.js"></script>
+<script src="histogram-chart.js"></script>
+<script>
+
+    function giniIndexColumnValues(data) {
+        var distribution = [];
+        for (var i = 0; i < data.length; i++) {
+            var giniIndex = data[i]["GINI_Index"];
+            if (giniIndex > 0)
+                distribution.push(giniIndex);
+        }
+        return distribution;
+    }
+
+    height = 500;
+    margin = ({top: 20, right: 20, bottom: 30, left: 40});
+    x = d3.scaleLinear()
+        .domain(d3.extent(data)).nice()
+        .range([margin.left, width - margin.right]);
+    y = d3.scaleLinear()
+        .domain([0, d3.max(bins, d => d.length)]).nice()
+        .range([height - margin.bottom, margin.top]);
+
+    // Data reading and conversion to bins.
+    var giniIndexData = d3.tsv("GINIIndex.tsv", function (d) {
+        console.log(d);
+        var giniIndexData = giniIndexColumnValues(d);
+        console.log(giniIndexData);
+        return giniIndexData;
+    });
+    console.log(giniIndexData);
+    bins = d3.histogram()
+        .domain(x.domain())
+        .thresholds(x.ticks(40))
+        (giniIndexData);
+    console.log(bins);
+
+
+    xAxis = g => g
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickSizeOuter(0))
+        .call(g => g.append("text")
+            .attr("x", width - margin.right)
+            .attr("y", -4)
+            .attr("fill", "#000")
+            .attr("font-weight", "bold")
+            .attr("text-anchor", "end")
+            .text(data.x))
+    yAxis = g => g
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y))
+        .call(g => g.select(".domain").remove())
+        .call(g => g.select(".tick:last-of-type text").clone()
+            .attr("x", 4)
+            .attr("text-anchor", "start")
+            .attr("font-weight", "bold")
+            .text(data.y));
+
+
+    // chart = {
+    //     // d3 = require("https://d3js.org/d3.v5.min.js")
+    //     const svg = d3.select(DOM.svg(width, height));
+    //
+    //     const bar = svg.append("g")
+    //     .attr("fill", "steelblue")
+    //     .selectAll("rect")
+    //     .data(bins)
+    //     .enter().append("rect")
+    //     .attr("x", d => x(d.x0) + 1)
+    //     .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+    //     .attr("y", d => y(d.length))
+    //     .attr("height", d => y(0) - y(d.length));
+    //
+    //     svg.append("g")
+    //         .call(xAxis);
+    //
+    //     svg.append("g")
+    //         .call(yAxis);
+    //
+    //     return svg.node();
+    // }
+
+    d3.select("body")
+        .datum(giniIndexData)
+        .call(histogramChart()
+            .bins(d3.scale.linear().ticks(20))
+            .tickFormat(d3.format(".02f")));
+</script>

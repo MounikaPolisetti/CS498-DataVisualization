@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    #main {
+        width: 960px;
+    }
+
+    .axis .domain {
+        display: none;
+    }
+</style>
+<div id="main">
+    <svg width="720" height="500"></svg>
+</div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-selection-multi.v0.4.min.js"></script>
+<script>
+    // create the svg
+    var svg = d3.select("svg"),
+        margin = {top: 20, right: 270, bottom: 30, left: 40},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var active_link = "0"; //to control legend selections and hover
+    var legendClicked; //to control legend selections
+    var legendClassArray = []; //store legend classes to select bars in plotSingle()
+    var y_orig; //to store original y-posn
+
+    // set x scale
+    var x = d3.scaleBand()
+        .rangeRound([0, width])
+        .paddingInner(0.15)
+        .align(0.1);
+
+    // set y scale
+    var y = d3.scaleLinear()
+        .rangeRound([height, 0]);
+
+    // set the colors
+    var z = d3.scaleOrdinal()
+        .range(["#DEC322", "#4CAF13", "#6FE9E9", "#FF6666", "#FF8000", "#004c99"]);
+
+    // load the csv and create the chart
+    d3.csv("barchart-data.csv", function (d, i, columns) {
+        for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
+        d.total = t;
+        return d;
+    }, function (error, data) {
+        if (error) throw error;
+
+        var keys = data.columns.slice(1);
+
+        data.sort(function (a, b) {
+            return a.Year - b.Year;
+        });
+        x.domain(data.map(function (d) {
+            return d.Year;
+        }));
+        y.domain([0, 1]).nice();
+        z.domain(keys);
+
+        // console.log(d3.stack().keys(keys)(data)[1][1][0]);
+        data.forEach(function (d) {
+            // Go through each row.
+            var year = d.Year;
+            var y0 = 0;
+            d.regions = z.domain().map(function (name) {
+                return {year: year, name: name, y0: y0, y1: y0 += +d[name]};
+            });
+            d.total = d.regions[d.regions.length - 1].y1;
+        });
+
+        var f = d3.format(".2f");
+
+        g.append("g")
+            .selectAll("g")
+            .data(data)
+            .enter().append("g")
+            .attr("class", function (d) {
+                return "classMP";
+            })
+            .selectAll("rect")
+            .data(function (d) {
+                return d.regions;
+            })
+            .enter().append("rect")
+            .attr("fill", function (d) {
+                return z(d.name);
+            })
+            .attr("x", function (d) {
+                return x(d.year);
+            })
+            .attr("y", function (d) {
+                return y(d.y1);
+            })
+            .attr("height", function (d) {
+                return y(d.y0) - y(d.y1);
+            })
+            .attr("width", x.bandwidth())
+            .attr("class", function (d) {
+                classLabel = d.name.replace(/\s/g, '').replace(/\&/g, ''); //remove spaces
+                return "class" + classLabel;
+            })
+            .on("mouseover", function () {
+                tooltip.style("display", null);
+            })
+            .on("mouseout", function () {
+                tooltip.style("display", "none");
+            })
+            .on("mousemove", function (d) {
+                console.log(d);
+                var xPosition = d3.mouse(this)[0] - 5;
+                var yPosition = d3.mouse(this)[1] - 5;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(f(d.y1 - d.y0));
+            });
+
+        g.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        g.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y).ticks(null, "s"))
+            .append("text")
+            .attr("x", 2)
+            .attr("y", y(y.ticks().pop()) + 0.5)
+            .attr("dy", "0.32em")
+            .attr("fill", "#000")
+            .attr("font-weight", "bold")
+            .attr("text-anchor", "start");
+
+        var legend = g.append("g")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 10)
+            .attr("text-anchor", "begin")
+            .selectAll("g")
+            .data(keys.slice().reverse())
+            .enter().append("g")
+            .attr("class", function (d) {
+                return "legend";
+            })
+            .attr("transform", function (d, i) {
+                return "translate(0," + i * 23 + ")";
+            });
+
+
+        legend.append("rect")
+            .attr("x", width + 50)
+            .attr("width", 19)
+            .attr("height", 19)
+            .attr("fill", z)
+            .attr("id", function (d, i) {
+                legendClassArray.push(d.replace(/\s/g, '').replace(/\&/g, '')); //remove spaces
+                console.log(legendClassArray);
+                return "id" + d.replace(/\s/g, '').replace(/\&/g, '');
+            })
+            .on("mouseover", function () {
+                d3.select(this).style("cursor", "pointer");
+            })
+            .on("click", function (d) {
+                if (active_link === "0") { //nothing selected, turn on this selection
+                    d3.select(this)
+                        .style("stroke", "black")
+                        .style("stroke-width", 2);
+
+                    active_link = this.id.split("id").pop();
+                    //gray out the others
+                    for (i = 0; i < legendClassArray.length; i++) {
+                        if (legendClassArray[i] != active_link) {
+                            d3.select("#id" + legendClassArray[i])
+                                .style("opacity", 0.5);
+                        }
+                    }
+
+                    plotSingle(this);
+                    console.log(legendClassArray);
+                } else { //deactivate
+                    if (active_link === this.id.split("id").pop()) {//active square selected; turn it OFF
+                        d3.select(this)
+                            .style("stroke", "none");
+
+                        active_link = "0"; //reset
+
+                        //restore remaining boxes to normal opacity
+                        for (i = 0; i < legendClassArray.length; i++) {
+                            d3.select("#id" + legendClassArray[i])
+                                .style("opacity", 1);
+                        }
+
+                        //restore plot to original
+                        restorePlot(d);
+
+                    } else {
+                        restorePlot(d);
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2)
+                            .style("opacity", 1);
+                        plotSingle(this);
+
+                        active_link = this.id.split("id").pop();
+                        //gray out the others
+                        for (i = 0; i < legendClassArray.length; i++) {
+                            if (legendClassArray[i] != active_link) {
+                                d3.select("#id" + legendClassArray[i])
+                                    .style("opacity", 0.5)
+                                    .style("stroke", "none");
+                            }
+                        }
+                    }
+
+                } //end active_link check
+
+
+            });
+
+        legend.append("text")
+            .attr("x", width + 75)
+            .attr("y", 9.5)
+            .attr("dy", "0.32em")
+            .text(function (d) {
+                return d;
+            });
+
+
+        function restorePlot(d) {
+
+            //restore opacity of erased bars
+            for (i = 0; i < legendClassArray.length; i++) {
+                d3.selectAll(".class" + legendClassArray[i])
+                    .style("opacity", 1);
+            }
+        }
+
+        function plotSingle(d) {
+
+            class_keep = d.id.substr(2); // remove "#id"
+
+            idx = legendClassArray.indexOf(class_keep);
+
+            //erase all but selected bars by setting opacity to 0
+            for (i = 0; i < legendClassArray.length; i++) {
+                console.log("i = " + i);
+                console.log(legendClassArray[i] + " - " + class_keep);
+
+                if (legendClassArray[i] != class_keep) {
+                    d3.selectAll(".class" + legendClassArray[i])
+                        .transition()
+                        .duration(1000)
+                        .style("opacity", 0.1);
+                }
+            }
+
+            //lower the bars to start on x - axis
+            y_orig = [];
+            g.selectAll(".classMP").nodes().forEach(function (outer_rect, i) {
+                console.log(i);
+                console.log(outer_rect);
+                console.log(outer_rect.x);
+
+                height_of_required_rect = 0;
+                max_y = 0;
+                for (inner_rect_idx = 0; inner_rect_idx < outer_rect.childNodes.length; inner_rect_idx++) {
+                    console.log("intheloooooooooooooooooooooooop")
+                    console.log("inner_rect_idx = " + inner_rect_idx);
+                    console.log(outer_rect.childNodes[inner_rect_idx].className.baseVal);
+                    console.log("class" + class_keep);
+                    console.log("outofffftheloooooooooooooooooooooooop")
+                    if (outer_rect.childNodes[inner_rect_idx].className.baseVal == "class" + class_keep) {
+                        y_orig[i] = outer_rect.childNodes[inner_rect_idx].y.baseVal.value;
+                        height_of_required_rect = outer_rect.childNodes[inner_rect_idx].height.baseVal.value;
+                    }
+                    if (max_y < outer_rect.childNodes[inner_rect_idx].y.baseVal.value + outer_rect.childNodes[inner_rect_idx].height.baseVal.value) {
+                        max_y = outer_rect.childNodes[inner_rect_idx].y.baseVal.value + outer_rect.childNodes[inner_rect_idx].height.baseVal.value;
+                    }
+                }
+                // outer_rect.selectAll("rect").nodes().forEach(function (small_rect, j) {
+                //    if ()
+                // });
+                console.log(y_orig);
+
+                console.log("idx = " + idx + " d[idx] = " + outer_rect[idx]);
+                console.log(d3.select(d[idx]));
+                console.log("======");
+                y_new = max_y - height_of_required_rect;
+                console.log("======>>>><<<<<<");
+                console.log(i);
+                console.log("y_new = " + y_new + " max_y = " + max_y + " height_of_required_rect = " + height_of_required_rect + "  y_orig[i] = " + y_orig[i]);
+                console.log("======>>>><<<<<<======");
+
+                // //get height and y posn of base bar and selected bar
+                // h_keep = d3.select(d[idx]).attr("height");
+                // y_keep = d3.select(d[idx]).attr("y");
+                // //store y_base in array to restore plot
+                // y_orig.push(y_keep);
+                //
+                // h_base = d3.select(d[0]).attr("height");
+                // y_base = d3.select(d[0]).attr("y");
+                //
+                // h_shift = h_keep - h_base;
+                // y_new = y_base - h_shift;
+                //
+                // //reposition selected bars
+                d3.select(".class" + class_keep)
+                    .transition()
+                    // .ease("bounce")
+                    .duration(500)
+                    .delay(500)
+                    .attr("y", y_new);
+            })
+        }
+    });
+
+    // Prep the tooltip bits, initial display is hidden
+    var tooltip = svg.append("g")
+        .attr("class", "tooltip")
+        .style("display", "none");
+
+    tooltip.append("rect")
+        .attr("width", 60)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .style("opacity", 0.5);
+
+    tooltip.append("text")
+        .attr("x", 30)
+        .attr("dy", "1.2em")
+        .style("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold");
+
+</script>
