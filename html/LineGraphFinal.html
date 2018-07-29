@@ -32,7 +32,7 @@
 </head>
 <body>
 <div id="main">
-    <svg width="720" height="500"></svg>
+    <svg width="1000" height="500"></svg>
 
     <div style="font-size: 90%;">
         <h4 style="margin-top: 0px; margin-bottom: 0px">Key Trends</h4>
@@ -47,7 +47,7 @@
 </body>
 <script>
 
-    var margin = {top: 20, right: 80, bottom: 70, left: 50},
+    var margin = {top: 20, right: 100, bottom: 70, left: 50},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
@@ -137,8 +137,10 @@
             y.domain([0, 100]);
 
             my_svg.selectAll("*").remove();
+            d3.select("svg").selectAll(".legend").remove();
+
             //LEGEND
-            var legend = my_svg.selectAll('g')
+            var legend = d3.select("svg").selectAll('.legend')
                 .data(region_json_array)
                 .enter()
                 .append('g')
@@ -147,7 +149,7 @@
             legend.append('rect')
                 .attr('x', width - 20)
                 .attr('y', function (d, i) {
-                    return i * 20;
+                    return (i + 2) * 20;
                 })
                 .attr('width', 10)
                 .attr('height', 10)
@@ -160,8 +162,9 @@
 
             legend.append('text')
                 .attr('x', width - 8)
+                .style("font-size", "12px")
                 .attr('y', function (d, i) {
-                    return (i * 20) + 9;
+                    return ((i + 2) * 20) + 10;
                 })
                 .text(function (d) {
                     return d.region_name;
@@ -179,6 +182,7 @@
                     "translate(" + (width / 2) + " ," +
                     (height + margin.top + 20) + ")")
                 .style("text-anchor", "middle")
+                .style("font-size", "10px")
                 .text("Year");
 
             my_svg.append("g")
@@ -272,9 +276,9 @@
                 }
             ];
             d3.select("svg").select("g").append('path').datum(annotations_data).attr('d', line).style("stroke", "#000000");
-            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(77)).text("East Asia & Pacific").style("font-weight", "bold");
-            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(74)).text("Rapid decrease in % of region");
-            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(71)).text("population in poverty");
+            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(78)).text("East Asia & Pacific").style("font-weight", "bold").style("font-size", "12px");
+            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(75)).text("Rapid decrease in % of region").style("font-size", "12px");
+            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(72)).text("population in poverty").style("font-size", "12px");
 
             annotations_data1 = [
                 {
@@ -287,9 +291,9 @@
                 }
             ];
             d3.select("svg").select("g").append('path').datum(annotations_data1).attr('d', line).style("stroke", "#000000");
-            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(77)).text("South Asia").style("font-weight", "bold");
-            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(74)).text("From 2005 rapid decrease in %");
-            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(71)).text("of region population in poverty");
+            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(77)).text("South Asia").style("font-weight", "bold").style("font-size", "12px");
+            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(74)).text("From 2005 rapid decrease in %").style("font-size", "12px");
+            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(71)).text("of region population in poverty").style("font-size", "12px");
 
             annotations_data2 = [
                 {
@@ -302,9 +306,9 @@
                 }
             ];
             d3.select("svg").select("g").append('path').datum(annotations_data2).attr('d', line).style("stroke", "#000000");
-            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(82)).text("South Africa").style("font-weight", "bold");
-            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(79)).text("slow decrease in % of region");
-            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(75.8)).text("population in poverty");
+            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(82)).text("South Africa").style("font-weight", "bold").style("font-size", "12px");
+            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(79)).text("slow decrease in % of region").style("font-size", "12px");
+            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(75.8)).text("population in poverty").style("font-size", "12px");
         })
     };
 
