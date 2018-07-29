@@ -53,7 +53,7 @@
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    var margin = {top: 20, right: 200, bottom: 30, left: 40},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
@@ -78,6 +78,7 @@
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
     // Define the div for the tooltip
     var tooltip_bg_rect = svg.append("rect");  // Invisible rect for the background color.
@@ -163,20 +164,20 @@
                     tooltip_bg_rect.style("opacity", 0);
                 });
 
-            var legend = svg.selectAll(".legend")
+            var legend = d3.select("svg").selectAll(".legend")
                 .data(color.domain())
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
             legend.append("rect")
-                .attr("x", width - 18)
+                .attr("x", width + margin.left + margin.right - 18)
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", color);
 
             legend.append("text")
-                .attr("x", width - 24)
+                .attr("x", width + margin.left + margin.right - 24)
                 .attr("y", 9)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
