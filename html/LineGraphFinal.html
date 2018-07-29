@@ -30,11 +30,21 @@
     <meta charset="UTF-8">
     <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
-
 <body>
+<div id="main">
+    <svg width="720" height="500"></svg>
 
+    <div style="font-size: 90%;">
+        <h4 style="margin-top: 0px; margin-bottom: 0px">Key Trends</h4>
+        <ul style="margin-top: 8px; margin-bottom: 8px">
+            <li>In East Asia & Pacific there is rapid decrease in % of region population in poverty </li>
+            <li>In South Asia from 2005 there is rapid decrease in % of region population in poverty </li>
+            <li>In South Africa slow decrease in % of region population in poverty </li>
+        </ul>
+    </div>
+
+</div>
 </body>
-
 <script>
 
     var margin = {top: 20, right: 80, bottom: 70, left: 50},
@@ -65,7 +75,7 @@
             return y(d.regionPopulation);
         });
 
-    var my_svg = d3.select("body").append("svg")
+    var my_svg = d3.select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
