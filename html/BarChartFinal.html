@@ -14,6 +14,18 @@
 </style>
 <div id="main">
     <svg width="720" height="500"></svg>
+
+    <div style="font-size: 90%;">
+        <h4 style="margin-top: 0px; margin-bottom: 0px">Key Trends</h4>
+        <ul style="margin-top: 8px; margin-bottom: 8px">
+            <li> Regional Poverty, measured as % of global poor population, decreased rapidly in East Asia & Pacific</li>
+            <li> The trend is opposite in Sub-saharan region</li>
+            <li> As of 2013, 85% of global poverty reside in 2 regions: Sub-saharan region and South Asia</li>
+        </ul>
+        <br/>
+        <strong>Trigger:</strong> Click on the legend to see trend per region.
+    </div>
+
 </div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-selection-multi.v0.4.min.js"></script>
@@ -45,7 +57,7 @@
         .range(["#DEC322", "#4CAF13", "#6FE9E9", "#FF6666", "#FF8000", "#004c99"]);
 
     // load the csv and create the chart
-    d3.csv("data/barchart-data.csv", function (d, i, columns) {
+    d3.csv("../data/barchart-data.csv", function (d, i, columns) {
         for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
         d.total = t;
         return d;
@@ -63,7 +75,6 @@
         y.domain([0, 1]).nice();
         z.domain(keys);
 
-        // console.log(d3.stack().keys(keys)(data)[1][1][0]);
         data.forEach(function (d) {
             // Go through each row.
             var year = d.Year;
@@ -117,7 +128,6 @@
                 var yPosition = d3.mouse(this)[1] - 5;
                 tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
                 tooltip.select("text").text("Poverty Fraction: " + f(d.y1 - d.y0));
-                // tooltip.select("html").html("Year: " + d.year + " <br> Poverty Fraction: " + f(d.y1 - d.y0));
             });
 
         g.append("g")
@@ -140,7 +150,7 @@
         g.append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 0 - margin.left)
-            .attr("x",0 - (height / 2))
+            .attr("x", 0 - (height / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
             .text("Poverty Fraction");
@@ -148,7 +158,7 @@
         // text label for X- axis
         g.append("text")
             .attr("transform",
-                "translate(" + (width/2) + " ," +
+                "translate(" + (width / 2) + " ," +
                 (height + margin.top + 20) + ")")
             .style("text-anchor", "middle")
             .text("Year");

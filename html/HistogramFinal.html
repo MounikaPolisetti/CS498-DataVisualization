@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    .bar rect {
+        fill: blue;
+    }
+
+    .bar text {
+        fill: #fff;
+        font: 10px sans-serif;
+    }
+
+</style>
+<div id="main">
+    <svg width="900" height="500"></svg>
+
+    <div style="font-size: 100%; font-family: 'Times New Roman'">
+        <h4 style="margin-top: 0; margin-bottom: 5px">What is GINI index?</h4>
+
+        It is a measure of income inequality of a country. A Gini index of 0 represents perfect equality, while an index
+        of 100 implies perfect inequality. However, in reality, countries have GINI index in the range [22, 63] and most
+        countries have < 50 GINI index.
+
+        <br/>
+        <br/>
+
+        <strong>Trigger:</strong> Click on the histogram bins to see the list of countries with corresponding GINI index.
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+    var data2 = d3.range(1000).map(d3.randomBates(10));
+    function giniIndexColumnValues(data) {
+        var distribution = [];
+        for (var i = 0; i < data.length; i++) {
+            var giniIndex = data[i]["GINI_Index"];
+            if (giniIndex > 0)
+                distribution.push(giniIndex);
+        }
+        return distribution;
+    }
+
+    function getCountriesInGiniRange(countryData, minGini, maxGini) {
+        var countriesInGiniRange = [];
+        for (var i = 0; i < countryData.length; i++) {
+            var giniIndex = countryData[i]["GINI_Index"];
+            var country = countryData[i]["name"];
+            if (giniIndex >= minGini && giniIndex <= maxGini) {
+                countriesInGiniRange.push(country);
+            }
+        }
+
+        return countriesInGiniRange;
+    }
+
+    d3.tsv("../data/GINIIndex.tsv", function (countryData) {
+        console.log(countryData);
+        var data = giniIndexColumnValues(countryData);
+        console.log(data);
+
+        var formatCount = d3.format(",.0f");
+
+        var svg = d3.select("svg"),
+            margin = {top: 10, right: 30, bottom: 50, left: 30},
+            width = +svg.attr("width") - 3 * margin.left - 3 * margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            text_g = svg.append("g").attr("transform", "translate(" + (svg.attr("width") - 3 * margin.left) + "," + margin.top + ")");
+
+        var x = d3.scaleLinear()
+            .domain([20, 70])
+            .rangeRound([0, width]);
+
+        var bins = d3.histogram()
+            .domain(x.domain())
+            .thresholds(x.ticks(11))
+            (data);
+        console.log(bins);
+
+        var y = d3.scaleLinear()
+            .domain([0, d3.max(bins, function (d) {
+                return d.length;
+            })])
+            .range([height, 0]);
+
+        var bar = g.selectAll(".bar")
+            .data(bins)
+            .enter().append("g")
+            .attr("class", "bar")
+            .attr("transform", function (d) {
+                return "translate(" + x(d.x0) + "," + y(d.length) + ")";
+            });
+
+        bar.append("rect")
+            .attr("x", 1)
+            .attr("width", x(bins[0].x1) - x(bins[0].x0) - 1)
+            .attr("height", function (d) {
+                return height - y(d.length);
+            })
+            .on("click", function (d) {
+                var minGini = d.x0;
+                var maxGini = d.x1;
+                var countriesInGiniRange = getCountriesInGiniRange(countryData, minGini, maxGini);
+                // d3.select("#countries").selectAll("text").text("");
+                // text_g.selectAll("p").remove();
+                text_g.selectAll("text").remove();
+
+                // var countriesListStr = "";
+                // for (var i = 0; i < countriesInGiniRange.length; i++) {
+                //     countriesListStr += countriesInGiniRange[i];
+                //     countriesListStr += "<br/>";
+                // }
+                // d3.select("#countries").append("text").text(countriesListStr);
+                text_g.append("text")
+                    .text("Countries")
+                    .attr("x", 0)
+                    .attr("y", 10)
+                    .style("font-weight", "bold")
+                    .style("font-size", "16px");
+                text_g.selectAll("#countryInGiniRange").data(countriesInGiniRange)
+                    .enter().append("text")
+                    .attr("x", 0)
+                    .attr("y", function(d, i) {
+                        return 10 + (i + 1) * 15;
+                    })
+                    .text( function(d) {
+                        return d;
+                    });
+                // text_g.append("p").html(countriesListStr);
+            });
+
+        bar.append("text")
+            .attr("dy", ".75em")
+            .attr("y", 6)
+            .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
+            .attr("text-anchor", "middle")
+            .text(function (d) {
+                return formatCount(d.length);
+            });
+
+        g.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        g.append("text")
+            .attr("transform",
+                "translate(" + (width/2) + " ," +
+                (height + margin.top + 25) + ")")
+            .style("text-anchor", "middle")
+            .text("GINI bins");
+
+        g.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Num Countries in GINI index bin");
+
+    });
+    // console.log(data2);
+
+
+</script>

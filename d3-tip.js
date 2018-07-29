@@ -1,3 +1,4 @@
+/*
 ;(function(root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module with d3 as a dependency.
@@ -6,12 +7,12 @@
             'd3-selection'
         ], factory)
     } else if (typeof module === 'object' && module.exports) {
-        /* eslint-disable global-require */
+        /!* eslint-disable global-require *!/
         // CommonJS
         var d3Collection = require('d3-collection'),
             d3Selection = require('d3-selection')
         module.exports = factory(d3Collection, d3Selection)
-        /* eslint-enable global-require */
+        /!* eslint-enable global-require *!/
     } else {
         // Browser global.
         var d3 = root.d3
@@ -330,3 +331,4 @@
     }
 // eslint-disable-next-line semi
 }));
+*/

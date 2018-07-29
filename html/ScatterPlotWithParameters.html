@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        font: 15px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .dot {
+        stroke: #000;
+    }
+
+</style>
+<body>
+
+<!-- dropdowns -->
+<div align="center">
+    <strong>Parameters: </strong>Select Poverty/Inequality Indicators to compare: <br><br>
+<select id="dropdown_x">
+    <option value="Income share held by highest 20%">Income share held by highest 20%</option>
+    <option value="Income share held by lowest 20%">Income share held by lowest 20%</option>
+    <option value="GINI index (World Bank estimate)" selected="selected">GINI index (World Bank estimate)</option>
+    <option value="Poverty headcount ratio at $3.20 a day (2011 PPP) (% of population)">Poverty headcount ratio at $3.20 a day (2011 PPP) (% of population)</option>
+</select>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<select id="dropdown_y">
+    <option value="Income share held by highest 20%" selected="selected">Income share held by highest 20%</option>
+    <option value="Income share held by lowest 20%">Income share held by lowest 20%</option>
+    <option value="GINI index (World Bank estimate)">GINI index (World Bank estimate)</option>
+    <option value="Poverty headcount ratio at $3.20 a day (2011 PPP) (% of population)">Poverty headcount ratio at $3.20 a day (2011 PPP) (% of population)</option>
+</select>
+<br><br><br>
+<svg></svg>
+<br/>
+
+<div style="font-size: 90%;" align="left">
+    <h4 style="margin-top: 0px; margin-bottom: 0px">Key Trends</h4>
+    <ul style="margin-top: 8px; margin-bottom: 8px">
+        <li> GINI index is correlated with "Income share held by highest 20%" and inversely correlated with "Income share held by lowest 20%."
+        <li> There is <strong>no correlation</strong> between GINI index (income inequality) and Poverty headcount ratio (% of population in poverty).</li>
+    </ul>
+</div>
+
+</div>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.linear()
+        .range([0, width]);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var color = d3.scale.category10();
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var svg = d3.select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Define the div for the tooltip
+    var tooltip_bg_rect = svg.append("rect");  // Invisible rect for the background color.
+    var tooltop_g = svg.append("text")
+        .attr("class", "tooltip_text_g")
+        .style("opacity", 1);
+
+    function runForIndicators(indicatorName1, indicatorName2) {
+        // Clear xaxis, yaxis, dots.
+        svg.selectAll(".x").remove();
+        svg.selectAll(".y").remove();
+        svg.selectAll(".dot").remove();
+
+        d3.csv("../data/IndicatorData for 2010-2015 With Region-v2.csv", function(error, data) {
+            if (error) throw error;
+
+            x.domain(d3.extent(data, function(d) { return d[indicatorName1]; })).nice();
+            y.domain(d3.extent(data, function(d) { return d[indicatorName2]; })).nice();
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("x", width)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .text(indicatorName1);
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text(indicatorName2);
+
+            svg.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("r", function (d) {
+                    if (d[indicatorName1] == 0 || d[indicatorName2] == 0)
+                        return 0;
+                    return 3.5;
+                })
+                .attr("cx", function(d) { return x(d[indicatorName1]); })
+                .attr("cy", function(d) { return y(d[indicatorName2]); })
+                .attr("fill", function (d) {
+                    return color(d["Region"]);
+                })
+                .on("mouseover", function (d) {
+                    tooltip_text_x =  x(d[indicatorName1]) - 25;
+                    tooltip_text_y =  y(d[indicatorName2]) - 10;
+                    var paddingLeftRight = 18; // adjust the padding values depending on font and font size
+                    var paddingTopBottom = 5;
+
+                    tooltop_g.text(d["Country Name"])
+                        .attr("x", tooltip_text_x)
+                        .attr("y", tooltip_text_y);
+                    bb = tooltop_g.node().getBBox();
+
+                    tooltip_bg_rect
+                        .attr("x", tooltip_text_x - 0 * bb.width - paddingLeftRight/2)
+                        .attr("y", tooltip_text_y - bb.height - 0 * paddingTopBottom/2)
+                        .attr("width", bb.width + paddingLeftRight)
+                        .attr("height", bb.height + paddingTopBottom);
+
+                    tooltop_g
+                        .style("opacity", .9)
+                        .style("font-weight", "bold")
+                        .style("font-weight", "bold");
+                    tooltip_bg_rect
+                        .style("opacity", 1.0)
+                        .style("fill", "lightsteelblue")
+                })
+                .on("mouseout", function(d) {
+                    tooltop_g.style("opacity", 0);
+                    tooltip_bg_rect.style("opacity", 0);
+                });
+
+            var legend = svg.selectAll(".legend")
+                .data(color.domain())
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+            legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", color);
+
+            legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) { return d; });
+        });
+    }
+
+
+
+    runForIndicators("Income share held by highest 20%", "Income share held by lowest 20%");
+
+
+    d3.select("#dropdown_x").on("change", function() {
+        var indicator_x = document.getElementById('dropdown_x');
+        var indicator_y = document.getElementById('dropdown_y');
+
+        console.log(indicator_x.options[indicator_x.selectedIndex].value);
+        console.log(indicator_y.options[indicator_y.selectedIndex].value);
+
+        runForIndicators(indicator_x.options[indicator_x.selectedIndex].value,
+            indicator_y.options[indicator_y.selectedIndex].value);
+    });
+
+    d3.select("#dropdown_y").on("change", function() {
+        var indicator_x = document.getElementById('dropdown_x');
+        var indicator_y = document.getElementById('dropdown_y');
+
+        console.log(indicator_x.options[indicator_x.selectedIndex].value);
+        console.log(indicator_y.options[indicator_y.selectedIndex].value);
+
+        runForIndicators(indicator_x.options[indicator_x.selectedIndex].value,
+            indicator_y.options[indicator_y.selectedIndex].value);
+    });
+
+</script>

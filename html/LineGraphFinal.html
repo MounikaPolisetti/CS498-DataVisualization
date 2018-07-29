@@ -28,9 +28,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Regional Distribution of Poverty</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <!-- <script src="http://d3js.org/d3.v3.js"></script> -->
 </head>
 
 <body>
@@ -59,8 +57,13 @@
 
     var line = d3.line()
         .curve(d3.curveBasis)
-        .x(function(d) { return x(d.date); })
-        .y(function(d) { return y(d.regionPopulation); });
+        .x(function (d) {
+            console.log("date is " + d.date + "  x is " + x(d.date));
+            return x(d.date);
+        })
+        .y(function (d) {
+            return y(d.regionPopulation);
+        });
 
     var my_svg = d3.select("body").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -68,8 +71,7 @@
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // var region_names = ["East Asia & Pacific", "Europe & Central Asia", "Latin America & Caribbean",
-    //                     "Middle East & North Africa", "South Asia",  "Sub-Saharan Africa", "World"];
+
     var filterData = {
         "East Asia & Pacific": true,
         "Europe & Central Asia": true,
@@ -82,11 +84,10 @@
 
     function retrieveRegions(filterData) {
         // "Region","Year"
-        d3.csv("data/NumberOfPoor.csv").then(function(data) {
+        d3.csv("../data/NumberOfPoor.csv").then(function (data) {
             console.log((data[0]));
-            // color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 
-            data.forEach(function(d) {
+            data.forEach(function (d) {
                 d.date = d.Year; // parseTime(d.Year);
             });
 
@@ -119,13 +120,11 @@
             });
             console.log(region_json_array);
 
-            x.domain(d3.extent(data, function(d) { return d.Year; }));
+            x.domain(d3.extent(data, function (d) {
+                return d.Year;
+            }));
 
-            /*y.domain([
-                d3.min(region_json_array, function(c) { return d3.min(c.values, function(v) { return v.regionPopulation; }); }),
-                d3.max(region_json_array, function(c) { return d3.max(c.values, function(v) { return v.regionPopulation; }); })
-            ]);*/
-            y.domain([0,100]);
+            y.domain([0, 100]);
 
             my_svg.selectAll("*").remove();
             //LEGEND
@@ -137,32 +136,37 @@
 
             legend.append('rect')
                 .attr('x', width - 20)
-                .attr('y', function(d, i){ return i *  20;})
+                .attr('y', function (d, i) {
+                    return i * 20;
+                })
                 .attr('width', 10)
                 .attr('height', 10)
-                .style('fill', function(d) {
+                .style('fill', function (d) {
                     return color(d.region_name);
                 })
                 .on("mouseover", function () {
                     d3.select(this).style("cursor", "pointer");
                 });
 
-
             legend.append('text')
                 .attr('x', width - 8)
-                .attr('y', function(d, i){ return (i *  20) + 9;})
-                .text(function(d){ return d.region_name; });
+                .attr('y', function (d, i) {
+                    return (i * 20) + 9;
+                })
+                .text(function (d) {
+                    return d.region_name;
+                });
 
             legend
-                .on("click", function(d){
-                     // filter data
-                     filterData[d.region_name]=!filterData[d.region_name];
-                     reDraw();
+                .on("click", function (d) {
+                    // filter data
+                    filterData[d.region_name] = !filterData[d.region_name];
+                    reDraw();
                 });
 
             my_svg.append("text")
                 .attr("transform",
-                    "translate(" + (width/2) + " ," +
+                    "translate(" + (width / 2) + " ," +
                     (height + margin.top + 20) + ")")
                 .style("text-anchor", "middle")
                 .text("Year");
@@ -176,7 +180,7 @@
             my_svg.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 0 - margin.left)
-                .attr("x",0 - (height / 2))
+                .attr("x", 0 - (height / 2))
                 .attr("dy", "1em")
                 .style("text-anchor", "middle")
                 .text("% of Region Populaton");
@@ -191,52 +195,115 @@
                 .style("text-anchor", "end")
                 .text("% of Region Populaton");
 
-            var boo = region_json_array.filter(function(d){return filterData[d.region_name]==true;});
+            var boo = region_json_array.filter(function (d) {
+                return filterData[d.region_name] == true;
+            });
             console.log("filter");
             console.log(boo);
 
             var city = my_svg.selectAll(".city")
-                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;})) //.filter(function(d){return filterData[d.name]==true;})
+                .data(region_json_array.filter(function (d) {
+                    return filterData[d.region_name] == true;
+                }))
                 .enter().append("g");
-            //  .attr("class", "city");
 
             console.log(city);
             my_svg.selectAll(".city")
-                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;}))//.filter(function(d){return filterData[d.name]==true;})
+                .data(region_json_array.filter(function (d) {
+                    return filterData[d.region_name] == true;
+                }))
                 .append("g")
                 .attr("class", "city");
 
             my_svg.selectAll(".city")
-                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;}))
+                .data(region_json_array.filter(function (d) {
+                    return filterData[d.region_name] == true;
+                }))
                 .exit()
                 .remove();
 
             city.append("path")
                 .attr("class", "line")
-                .attr("d", function(d) { return line(d.values); })
-                .style("stroke", function(d) { return color(d.region_name); });
+                .attr("d", function (d) {
+                    return line(d.values);
+                })
+                .style("stroke", function (d) {
+                    return color(d.region_name);
+                });
 
             city.append("text")
-                .datum(function(d) { return {name: d.region_name, value: d.values[d.values.length - 1]}; })
-                .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.regionPopulation) + ")"; })
+                .datum(function (d) {
+                    return {name: d.region_name, value: d.values[d.values.length - 1]};
+                })
+                .attr("transform", function (d) {
+                    console.log(d.value.date);
+                    return "translate(" + x(d.value.date) + "," + y(d.value.regionPopulation) + ")";
+                })
                 .attr("x", 3)
                 .attr("dy", ".35em")
-                .text(function(d) { return d.region_name; });
+                .text(function (d) {
+                    return d.region_name;
+                });
             my_svg.selectAll(".city")
-                .data(region_json_array.filter(function(d){return filterData[d.region_name]==true;}))
+                .data(region_json_array.filter(function (d) {
+                    return filterData[d.region_name] == true;
+                }))
                 .exit()
                 .remove();
+
+            annotations_data = [
+                {
+                    date: 1998,
+                    regionPopulation: "34.7",
+                },
+                {
+                    date: 1993,
+                    regionPopulation: "70",
+                }
+            ];
+            d3.select("svg").select("g").append('path').datum(annotations_data).attr('d', line).style("stroke", "#000000");
+            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(77)).text("East Asia & Pacific").style("font-weight", "bold");
+            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(74)).text("Rapid decrease in % of region");
+            d3.select("svg").select("g").append('text').attr('x', x(1993)).attr('y', y(71)).text("population in poverty");
+
+            annotations_data1 = [
+                {
+                    date: 2005,
+                    regionPopulation: "34.1",
+                },
+                {
+                    date: 1999,
+                    regionPopulation: "70",
+                }
+            ];
+            d3.select("svg").select("g").append('path').datum(annotations_data1).attr('d', line).style("stroke", "#000000");
+            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(77)).text("South Asia").style("font-weight", "bold");
+            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(74)).text("From 2005 rapid decrease in %");
+            d3.select("svg").select("g").append('text').attr('x', x(1999)).attr('y', y(71)).text("of region population in poverty");
+
+            annotations_data2 = [
+                {
+                    date: 2006,
+                    regionPopulation: "75",
+                },
+                {
+                    date: 2009,
+                    regionPopulation: "46.5",
+                }
+            ];
+            d3.select("svg").select("g").append('path').datum(annotations_data2).attr('d', line).style("stroke", "#000000");
+            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(82)).text("South Africa").style("font-weight", "bold");
+            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(79)).text("slow decrease in % of region");
+            d3.select("svg").select("g").append('text').attr('x', x(2006)).attr('y', y(75.8)).text("population in poverty");
         })
     };
 
-    //retrieveRegions(filterData);
-
     console.log(filterData);
     retrieveRegions(filterData);
-    function reDraw(){
+
+    function reDraw() {
         retrieveRegions(filterData);
     }
-
 </script>
 
 </html>
